@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+
+  <title>Alat Deteksi Daun Herbal</title>
+
+  <!-- Library TensorFlow dan Teachable Machine dari internet -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.5/dist/teachablemachine-image.min.js"></script>
+</head>
+
+<body>
+
+  <h1>Alat Deteksi Daun Herbal</h1>
+  <p>Pilih cara input gambar:</p>
+
+  <!-- Tombol kamera -->
+  <button onclick="startCamera()">Buka Kamera</button>
+
+  <!-- Tombol upload gambar -->
+  <input type="file" accept="image/*" onchange="handleUpload(event)">
+
+  <br><br>
+
+  <!-- Tampilan kamera live -->
+  <video id="video" width="300" autoplay playsinline style="display:none"></video>
+  <br>
+  <button id="btnCapture" onclick="captureFrame()" style="display:none">Ambil Foto</button>
+
+  <br>
+
+  <!-- Preview gambar yang dipilih/difoto -->
+  <img id="previewImg" width="300" style="display:none">
+
+  <!-- Canvas tersembunyi untuk proses gambar -->
+  <canvas id="canvas" style="display:none"></canvas>
+
+  <br><br>
+
+  <!-- Status / pesan loading -->
+  <p id="statusMsg">Memuat model AI, harap tunggu...</p>
+
+  <hr>
+
+  <!-- Hasil prediksi -->
+  <div id="hasil" style="display:none">
+
+    <h2>Hasil Deteksi</h2>
+
+    <p><b>Nama Daun:</b> <span id="leafName"></span></p>
+    <p><b>Nama Latin:</b> <span id="leafLatin"></span></p>
+    <p><b>Tingkat Keyakinan:</b> <span id="leafConf"></span>%</p>
+
+    <hr>
+
+    <h3>Tentang Tanaman</h3>
+    <p id="leafDesc"></p>
+
+    <h3>Manfaat Utama</h3>
+    <ul id="leafBenefits"></ul>
+
+    <hr>
+
+    <h3>Probabilitas Semua Class</h3>
+    <div id="probBars"></div>
+
+    <br>
+    <button onclick="resetSemua()">Coba Gambar Lain</button>
+
+  </div>
+
+  <script>
+
+    // =====================================================
+    // LANGKAH 1: Ganti URL ini dengan URL model kamu
+    // Cara dapat URL:
+    //   - Buka teachablemachine.withgoogle.com
+    //   - Buka project -> Export Model
+    //   - Pilih Tensorflow.js -> Upload (shareable link)
+    //   - Klik "Upload my model" -> copy URL-nya
+    // =====================================================
+    var MODEL_URL = "https://teachablemachine.withgoogle.com/models/7eoaYwVKW/";
+
+
+
+    // =====================================================
+    // LANGKAH 2: Isi informasi untuk setiap class
+    // Key (binahong, sereh) harus sama dengan nama class
+    // di Teachable Machine (huruf kecil)
+    // =====================================================
+    var infoTanaman = {
+
+
+      "daun afrika": {
+        nama: "Daun Afrika",
+        latin: "Vernonia amygdalina",
+        deskripsi: "Daun afrika adalah tanaman herbal merambat yang berasal dari Afrika Selatan. Daunnya berbentuk hati dengan permukaan mengkilap. Banyak digunakan dalam pengobatan tradisional Indonesia.",
+        manfaat: [
+          "Mempercepat penyembuhan luka",
+          "Mengandung antioksidan tinggi",
+          "Bersifat anti-inflamasi",
+          "Meningkatkan daya tahan tubuh",
+          "Melancarkan pencernaan"
+        ]
+      },
+
+
+      "sawi langit": {
+        nama: "Sawi Langit",
+        latin: "Crassocephalum cressiodes",
+        deskripsi: "Sawi langit adalah tanaman herba yang memiliki banyak manfaat bagi kesehatan. Daunnya berbentuk oval dengan pinggiran bergerigi dan warna hijau cerah. Tanaman ini tumbuh liar di daerah tropis dan subtropis.",
+        manfaat: [
+          "Antiinflamasi",
+          "Antioksidan",
+          "Antitoksik",
+          "Antimikroba"
+        ]
+      },
+
+
+      "gempur batu": {
+        nama: "Gempur Batu",
+        latin: " Strobilanthes crispus ",
+        deskripsi: "Gempur batu adalah tanaman herba yang memiliki banyak manfaat bagi kesehatan. Daunnya berbentuk oval dengan pinggiran bergerigi dan warna hijau cerah. Tanaman ini tumbuh liar di daerah tropis dan subtropis.",
+        manfaat: [
+          "Antiinflamasi",
+          "Antioksidan",
+          "Antihepatotoksik",
+          "Antihipertensi",
+          "Antihiperglikemik"
+        ]
+      },
+
+      "kirinyuh": {
+        nama: "kirinyuh",
+        latin: " Ageratina adenophora ",
+        deskripsi: "Kirinyuh adalah tumbuhan semak liar berbunga putih dari keluarga Asteraceae yang banyak tumbuh di daerah tropis dan memiliki manfaat tradisional sebagai obat luka, antibakteri, serta bahan pestisida nabati.",
+        manfaat: [
+          "Membantu penyembuhan luka",
+          "Antibakteri dan antijamur",
+          "Antioksidan",
+          "Pestisida nabati",
+          "Bahan kompos dan pupuk hijau"
+        ]
+      },
+
+      "menira merah": {
+        nama: "menira merah",
+        latin: " Phyllanthus urinaria ",
+        deskripsi: "Meniran Merah adalah tanaman herbal kecil dengan batang kemerahan dan buah kecil di bawah daun yang dikenal memiliki manfaat tradisional untuk membantu meningkatkan daya tahan tubuh, meredakan peradangan, dan mendukung kesehatan hati..",
+        manfaat: [
+          "Membantu meningkatkan daya tahan tubuh",
+          "Membantu menjaga kesehatan hati",
+          "Memiliki sifat antiinflamasi dan antioksidan",
+          "Digunakan secara tradisional untuk membantu meredakan infeksi saluran kemih",
+          "Membantu menurunkan demam dan menjaga kesehatan tubuh secara alami"
+        ]
+      },
+
+
+      "ruku ruku": {
+        nama: "ruku ruku",
+        latin: " Ocimum tenuiflorum ",
+        deskripsi: "  Ruku ruku adalah tanaman herbal aromatik dari keluarga Lamiaceae yang memiliki daun kecil berwarna hijau keunguan dengan aroma khas, sering digunakan sebagai bumbu masakan serta tanaman obat tradisional di berbagai daerah tropis....",
+        manfaat: [
+          "Membantu meredakan batuk dan flu",
+          "Memiliki sifat antibakteri dan antivirus alami",
+          "Membantu meningkatkan daya tahan tubuh",
+          "Dapat meredakan stres dan membuat tubuh lebih rileks",
+          "Membantu menjaga kesehatan saluran pernapasan"
+        ]
+      },
+
+
+      "sirih cina": {
+        nama: "Sirih Cina",
+        latin: " Peperomia pellucida ",
+        deskripsi: " sirih cina adalah herba kecil dengan batang lunak, daun hijau mengkilap berbentuk hati, dan biasanya tumbuh liar di tempat lembap seperti pekarangan atau tepi jalan.",
+        manfaat: [
+          "Membantu meredakan nyeri dan peradangan.",
+          "Memiliki sifat antibakteri dan antioksidan.",
+          "Digunakan secara tradisional untuk membantu mengatasi asam urat.",
+          "Membantu mempercepat penyembuhan luka ringan",
+          "Dapat digunakan sebagai obat herbal untuk kesehatan ginjal dan saluran kemih."
+        ]
+      },
+
+      // Untuk menambah daun baru, ikuti format di atas:
+      // namadaun: {
+      //   nama: "...",
+      //   latin: "...",
+      //   deskripsi: "...",
+      //   manfaat: ["...", "...", ...]
+      // }
+    };
+
+
+
+    // =====================================================
+    // Variabel global - tidak perlu diubah
+    // =====================================================
+    var model = null;
+    var stream = null;
+
+    // Fungsi tampilkan status
+    function setStatus(pesan) {
+      document.getElementById("statusMsg").innerText = pesan;
+    }
+
+    // Load model saat halaman dibuka
+    async function loadModel() {
+      try {
+        model = await tmImage.load(MODEL_URL + "model.json", MODEL_URL + "metadata.json");
+        setStatus("Model siap. Silakan buka kamera atau upload gambar.");
+      } catch (e) {
+        setStatus("Gagal memuat model. Cek URL model dan koneksi internet.");
+      }
+    }
+
+    // Buka kamera
+    async function startCamera() {
+      if (!model) { setStatus("Model belum siap, tunggu sebentar."); return; }
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        document.getElementById("video").srcObject = stream;
+        document.getElementById("video").style.display = "block";
+        document.getElementById("btnCapture").style.display = "inline";
+        document.getElementById("previewImg").style.display = "none";
+        document.getElementById("hasil").style.display = "none";
+        setStatus("Arahkan kamera ke daun lalu klik Ambil Foto.");
+      } catch (e) {
+        setStatus("Tidak bisa akses kamera. Pastikan izin kamera sudah diberikan.");
+      }
+    }
+
+    // Ambil foto dari kamera
+    async function captureFrame() {
+      var video = document.getElementById("video");
+      var canvas = document.getElementById("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+
+      // Tampilkan hasil foto sebagai preview
+      document.getElementById("previewImg").src = canvas.toDataURL("image/jpeg");
+      document.getElementById("previewImg").style.display = "block";
+
+      // Hentikan kamera
+      hentikanKamera();
+      document.getElementById("video").style.display = "none";
+      document.getElementById("btnCapture").style.display = "none";
+
+      await prediksi(canvas);
+    }
+
+    // Upload gambar dari file
+    function handleUpload(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      if (!model) { setStatus("Model belum siap, tunggu sebentar."); return; }
+
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        var img = document.getElementById("previewImg");
+        img.src = ev.target.result;
+        img.style.display = "block";
+        document.getElementById("hasil").style.display = "none";
+
+        // Proses gambar setelah selesai load
+        var tempImg = new Image();
+        tempImg.onload = async function () {
+          var canvas = document.getElementById("canvas");
+          canvas.width = tempImg.naturalWidth;
+          canvas.height = tempImg.naturalHeight;
+          canvas.getContext("2d").drawImage(tempImg, 0, 0);
+          await prediksi(canvas);
+        };
+        tempImg.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Proses prediksi ke model AI
+    async function prediksi(sumber) {
+      setStatus("Sedang menganalisis gambar...");
+      document.getElementById("hasil").style.display = "none";
+      try {
+        var hasil = await model.predict(sumber);
+        tampilHasil(hasil);
+      } catch (e) {
+        setStatus("Gagal menganalisis gambar. Coba lagi.");
+      }
+    }
+
+    // Tampilkan hasil prediksi
+    function tampilHasil(predictions) {
+      // Urutkan dari probabilitas tertinggi
+      predictions.sort(function (a, b) { return b.probability - a.probability; });
+
+      var teratas = predictions[0];
+      var key = teratas.className.toLowerCase().trim();
+      var info = infoTanaman[key];
+      var persen = Math.round(teratas.probability * 100);
+
+      // Jika class tidak ada di infoTanaman, tampilkan data minimal
+      if (!info) {
+        info = {
+          nama: teratas.className,
+          latin: "-",
+          deskripsi: "Informasi untuk tanaman ini belum tersedia.",
+          manfaat: []
+        };
+      }
+
+      // Isi nama, latin, keyakinan
+      document.getElementById("leafName").innerText = info.nama;
+      document.getElementById("leafLatin").innerText = info.latin;
+      document.getElementById("leafConf").innerText = persen;
+
+      // Isi deskripsi
+      document.getElementById("leafDesc").innerText = info.deskripsi;
+
+      // Isi daftar manfaat
+      var ulManfaat = document.getElementById("leafBenefits");
+      ulManfaat.innerHTML = "";
+      for (var i = 0; i < info.manfaat.length; i++) {
+        var li = document.createElement("li");
+        li.innerText = info.manfaat[i];
+        ulManfaat.appendChild(li);
+      }
+
+      // Isi bar probabilitas tiap class
+      var divBars = document.getElementById("probBars");
+      divBars.innerHTML = "";
+      for (var j = 0; j < predictions.length; j++) {
+        var p = predictions[j];
+        var pct = Math.round(p.probability * 100);
+        var inf = infoTanaman[p.className.toLowerCase().trim()];
+        var namaClass = inf ? inf.nama : p.className;
+
+        divBars.innerHTML +=
+          "<p>" + namaClass + ": " + pct + "%" +
+          "<br><progress value='" + pct + "' max='100'></progress></p>";
+      }
+
+      setStatus("");
+      document.getElementById("hasil").style.display = "block";
+    }
+
+    // Hentikan kamera
+    function hentikanKamera() {
+      if (stream) {
+        stream.getTracks().forEach(function (t) { t.stop(); });
+        stream = null;
+      }
+    }
+
+    // Reset semua
+    function resetSemua() {
+      hentikanKamera();
+      document.getElementById("video").style.display = "none";
+      document.getElementById("btnCapture").style.display = "none";
+      document.getElementById("previewImg").style.display = "none";
+      document.getElementById("hasil").style.display = "none";
+      setStatus("Model siap. Silakan buka kamera atau upload gambar.");
+    }
+
+    // Jalankan load model saat halaman pertama dibuka
+    loadModel();
+
+  </script>
+
+</body>
+
+</html>
