@@ -4,8 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description"
-    content="Aplikasi Pintar berbasis Kecerdasan Buatan (AI) untuk mendeteksi berbagai jenis daun herbal dan khasiat kesehatannya secara langsung dari browser.">
+  <meta name="description" content="Aplikasi Pintar berbasis Kecerdasan Buatan (AI) untuk mendeteksi berbagai jenis daun herbal dan khasiat kesehatannya secara langsung dari browser.">
 
   <title>Alat Deteksi Daun Herbal - Klasifikasi AI</title>
 
@@ -23,17 +22,12 @@
        1. VARIABLES & RESET STYLE
        ========================================================================== */
     :root {
-      --primary: #10b981;
-      /* Hijau Emerald */
-      --primary-hover: #059669;
-      /* Hijau Emerald Gelap */
-      --secondary: #0f766e;
-      /* Hijau Teal */
+      --primary: #10b981;          /* Hijau Emerald */
+      --primary-hover: #059669;    /* Hijau Emerald Gelap */
+      --secondary: #0f766e;        /* Hijau Teal */
       --background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-      --text-main: #1f2937;
-      /* Abu-abu Gelap */
-      --text-muted: #4b5563;
-      /* Abu-abu Sedang */
+      --text-main: #1f2937;        /* Abu-abu Gelap */
+      --text-muted: #4b5563;       /* Abu-abu Sedang */
       --card-bg: #ffffff;
       --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
       --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -57,8 +51,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 90px 20px 40px 20px;
-      /* Padding atas disesuaikan untuk Fixed Header */
+      padding: 90px 20px 40px 20px; /* Padding atas disesuaikan untuk Fixed Header */
       line-height: 1.6;
     }
 
@@ -76,8 +69,7 @@
       left: 0;
       z-index: 1000;
       display: flex;
-      justify-content: center;
-      /* Dipusatkan agar seimbang di mobile & desktop */
+      justify-content: center; /* Dipusatkan agar seimbang di mobile & desktop */
       align-items: center;
     }
 
@@ -156,8 +148,7 @@
     }
 
     /* Dasar tombol */
-    button,
-    .btn-label {
+    button, .btn-label {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -222,8 +213,7 @@
     /* ==========================================================================
        4. CAMERA STREAM & PREVIEW IMAGE
        ========================================================================== */
-    video,
-    img {
+    video, img {
       width: 100%;
       max-width: 100%;
       height: auto;
@@ -276,6 +266,7 @@
       margin: 0;
       flex: 1;
       min-width: 150px;
+      max-width: none;
     }
 
     /* Tombol Switch Kamera */
@@ -349,17 +340,9 @@
     }
 
     @keyframes pulse {
-      0% {
-        opacity: 0.8;
-      }
-
-      50% {
-        opacity: 1;
-      }
-
-      100% {
-        opacity: 0.8;
-      }
+      0% { opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
     }
 
     /* ==========================================================================
@@ -377,15 +360,8 @@
     }
 
     @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(16px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .result-header {
@@ -480,7 +456,51 @@
     }
 
     /* ==========================================================================
-       7. PROBABILITY BARS (Dynamic Output)
+       7. NOT FOUND CARD
+       ========================================================================== */
+    .not-found-card {
+      text-align: center;
+      background-color: #fff8f8;
+      border: 1px solid #fecaca;
+      border-radius: var(--radius-md);
+      padding: 28px 20px;
+      margin-top: 24px;
+      box-shadow: var(--shadow-sm);
+      animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .not-found-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .not-found-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #dc2626;
+      margin-bottom: 8px;
+    }
+
+    .not-found-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .confidence-info {
+      display: inline-block;
+      background-color: #fee2e2;
+      color: #dc2626;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* ==========================================================================
+       8. PROBABILITY BARS (Dynamic Output)
        ========================================================================== */
     #probBars p {
       font-size: 13px;
@@ -521,8 +541,7 @@
        ========================================================================== */
     @media (max-width: 480px) {
       body {
-        padding: 75px 12px 20px 12px;
-        /* Menyesuaikan dengan fixed header di layar kecil */
+        padding: 75px 12px 20px 12px; /* Menyesuaikan dengan fixed header di layar kecil */
       }
 
       .app-header {
@@ -563,8 +582,7 @@
   <!-- Header Menu dengan Logo MTsN 3 Jakarta (Kemenag) -->
   <header class="app-header">
     <div class="header-logo-container">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5uffniyRneLa2hcxmzja9AJFE3Ta9_V9lNg&s"
-        alt="Logo MTsN 3 Jakarta" class="school-logo">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5uffniyRneLa2hcxmzja9AJFE3Ta9_V9lNg&s" alt="Logo MTsN 3 Jakarta" class="school-logo">
       <div class="school-info">
         <span class="school-name">MTsN 3 Jakarta</span>
         <span class="school-tagline">Unggul, Mandiri, Religius</span>
@@ -610,6 +628,9 @@
     <!-- Status Loading / Informasi -->
     <div id="statusMsg">Memuat model AI, harap tunggu...</div>
 
+    <!-- Tampilan Pesan Tidak Ditemukan -->
+    <div id="notFound" class="not-found-card" style="display:none"></div>
+
     <!-- Hasil Klasifikasi & Deskripsi -->
     <div id="hasil" class="result-card" style="display:none">
       <div class="result-header">Hasil Analisis Tanaman</div>
@@ -645,23 +666,14 @@
 
     // =====================================================
     // LANGKAH 1: Ganti URL ini dengan URL model kamu
-    // Cara dapat URL:
-    //   - Buka teachablemachine.withgoogle.com
-    //   - Buka project -> Export Model
-    //   - Pilih Tensorflow.js -> Upload (shareable link)
-    //   - Klik "Upload my model" -> copy URL-nya
     // =====================================================
     var MODEL_URL = "https://teachablemachine.withgoogle.com/models/7eoaYwVKW/";
 
-
-
     // =====================================================
     // LANGKAH 2: Isi informasi untuk setiap class
-    // Key (binahong, sereh) harus sama dengan nama class
-    // di Teachable Machine (huruf kecil)
+    // Key harus sama dengan nama class di Teachable Machine (huruf kecil)
     // =====================================================
     var infoTanaman = {
-
 
       "daun afrika": {
         nama: "Daun Afrika",
@@ -676,7 +688,6 @@
         ]
       },
 
-
       "sawi langit": {
         nama: "Sawi Langit",
         latin: "Crassocephalum cressiodes",
@@ -689,10 +700,9 @@
         ]
       },
 
-
       "gempur batu": {
         nama: "Gempur Batu",
-        latin: " Strobilanthes crispus ",
+        latin: "Strobilanthes crispus",
         deskripsi: "Gempur batu adalah tanaman herba yang memiliki banyak manfaat bagi kesehatan. Daunnya berbentuk oval dengan pinggiran bergerigi dan warna hijau cerah. Tanaman ini tumbuh liar di daerah tropis dan subtropis.",
         manfaat: [
           "Antiinflamasi",
@@ -704,8 +714,8 @@
       },
 
       "kirinyuh": {
-        nama: "kirinyuh",
-        latin: " Ageratina adenophora ",
+        nama: "Kirinyuh",
+        latin: "Ageratina adenophora",
         deskripsi: "Kirinyuh adalah tumbuhan semak liar berbunga putih dari keluarga Asteraceae yang banyak tumbuh di daerah tropis dan memiliki manfaat tradisional sebagai obat luka, antibakteri, serta bahan pestisida nabati.",
         manfaat: [
           "Membantu penyembuhan luka",
@@ -717,9 +727,9 @@
       },
 
       "menira merah": {
-        nama: "menira merah",
-        latin: " Phyllanthus urinaria ",
-        deskripsi: "Meniran Merah adalah tanaman herbal kecil dengan batang kemerahan dan buah kecil di bawah daun yang dikenal memiliki manfaat tradisional untuk membantu meningkatkan daya tahan tubuh, meredakan peradangan, dan mendukung kesehatan hati..",
+        nama: "Meniran Merah",
+        latin: "Phyllanthus urinaria",
+        deskripsi: "Meniran Merah adalah tanaman herbal kecil dengan batang kemerahan dan buah kecil di bawah daun yang dikenal memiliki manfaat tradisional untuk membantu meningkatkan daya tahan tubuh, meredakan peradangan, dan mendukung kesehatan hati.",
         manfaat: [
           "Membantu meningkatkan daya tahan tubuh",
           "Membantu menjaga kesehatan hati",
@@ -729,11 +739,10 @@
         ]
       },
 
-
       "ruku ruku": {
-        nama: "ruku ruku",
-        latin: " Ocimum tenuiflorum ",
-        deskripsi: "  Ruku ruku adalah tanaman herbal aromatik dari keluarga Lamiaceae yang memiliki daun kecil berwarna hijau keunguan dengan aroma khas, sering digunakan sebagai bumbu masakan serta tanaman obat tradisional di berbagai daerah tropis....",
+        nama: "Ruku Ruku",
+        latin: "Ocimum tenuiflorum",
+        deskripsi: "Ruku ruku adalah tanaman herbal aromatik dari keluarga Lamiaceae yang memiliki daun kecil berwarna hijau keunguan dengan aroma khas, sering digunakan sebagai bumbu masakan serta tanaman obat tradisional di berbagai daerah tropis.",
         manfaat: [
           "Membantu meredakan batuk dan flu",
           "Memiliki sifat antibakteri dan antivirus alami",
@@ -743,98 +752,96 @@
         ]
       },
 
-
       "sirih cina": {
         nama: "Sirih Cina",
-        latin: " Peperomia pellucida ",
-        deskripsi: " sirih cina adalah herba kecil dengan batang lunak, daun hijau mengkilap berbentuk hati, dan biasanya tumbuh liar di tempat lembap seperti pekarangan atau tepi jalan.",
+        latin: "Peperomia pellucida",
+        deskripsi: "Sirih cina adalah herba kecil dengan batang lunak, daun hijau mengkilap berbentuk hati, dan biasanya tumbuh liar di tempat lembap seperti pekarangan atau tepi jalan.",
         manfaat: [
-          "Membantu meredakan nyeri dan peradangan.",
-          "Memiliki sifat antibakteri dan antioksidan.",
-          "Digunakan secara tradisional untuk membantu mengatasi asam urat.",
+          "Membantu meredakan nyeri dan peradangan",
+          "Memiliki sifat antibakteri dan antioksidan",
+          "Digunakan secara tradisional untuk membantu mengatasi asam urat",
           "Membantu mempercepat penyembuhan luka ringan",
-          "Dapat digunakan sebagai obat herbal untuk kesehatan ginjal dan saluran kemih."
+          "Dapat digunakan sebagai obat herbal untuk kesehatan ginjal dan saluran kemih"
         ]
       },
 
       "daun binahong": {
-        nama: "daun binahong",
-        latin: " Anredera cordifolia (Ten.) Steenis.  ",
-        deskripsi: " Daun Binahong adalah tanaman herbal merambat yang memiliki daun hijau berbentuk hati dan mudah tumbuh di daerah tropis. Daun ini sering digunakan dalam pengobatan tradisional karena dipercaya dapat membantu menyembuhkan luka, mengurangi peradangan, dan menjaga kesehatan tubuh.",
+        nama: "Daun Binahong",
+        latin: "Anredera cordifolia (Ten.) Steenis",
+        deskripsi: "Daun Binahong adalah tanaman herbal merambat yang memiliki daun hijau berbentuk hati dan mudah tumbuh di daerah tropis. Daun ini sering digunakan dalam pengobatan tradisional karena dipercaya dapat membantu menyembuhkan luka, mengurangi peradangan, dan menjaga kesehatan tubuh.",
         manfaat: [
-          "Membantu mempercepat penyembuhan luka.",
-          "Mengurangi peradangan.",
-          "Meningkatkan daya tahan tubuh.",
-          "Menjaga kesehatan kulit.",
-          "Menjaga kesehatan Pencernaan.",
+          "Membantu mempercepat penyembuhan luka",
+          "Mengurangi peradangan",
+          "Meningkatkan daya tahan tubuh",
+          "Menjaga kesehatan kulit",
+          "Menjaga kesehatan pencernaan"
         ]
       },
+
       "sirih merah": {
-        nama: "sirih merah",
-        latin: " Piper crocatum Ruiz & Pav.  ",
-        deskripsi: " Daun Sirih Merah adalah tanaman merambat yang memiliki daun berwarna hijau kemerahan dengan permukaan mengilap dan mudah tumbuh di daerah tropis.",
+        nama: "Sirih Merah",
+        latin: "Piper crocatum Ruiz & Pav.",
+        deskripsi: "Daun Sirih Merah adalah tanaman merambat yang memiliki daun berwarna hijau kemerahan dengan permukaan mengilap dan mudah tumbuh di daerah tropis.",
         manfaat: [
-          "Membantu menjaga daya tahan tubuh.",
-          "Memiliki sifat antibakteri dan antiradang.",
-          "Membantu mempercepat penyembuhan luka.",
-          "Menjaga kesehatan kulit dan mulut.",
-          "Menjaga kesehatan Pencernaan.",
+          "Membantu menjaga daya tahan tubuh",
+          "Memiliki sifat antibakteri dan antiradang",
+          "Membantu mempercepat penyembuhan luka",
+          "Menjaga kesehatan kulit dan mulut",
+          "Menjaga kesehatan pencernaan"
         ]
-        // ]  
       },
+
       "daun andong": {
-        nama: "daun andong",
-        latin: " Cordyline fruticosa.  ",
-        deskripsi: " Daun Andong adalah tanaman hias yang memiliki daun panjang berwarna merah keunguan atau hijau. Tanaman ini mudah tumbuh di daerah tropis dan sering dimanfaatkan sebagai tanaman obat tradisional karena dipercaya membantu mengurangi peradangan dan menjaga kesehatan tubuh.",
+        nama: "Daun Andong",
+        latin: "Cordyline fruticosa",
+        deskripsi: "Daun Andong adalah tanaman hias yang memiliki daun panjang berwarna merah keunguan atau hijau. Tanaman ini mudah tumbuh di daerah tropis dan sering dimanfaatkan sebagai tanaman obat tradisional karena dipercaya membantu mengurangi peradangan dan menjaga kesehatan tubuh.",
         manfaat: [
-          "Membantu mengurangi peradangan.",
-          "Membantu mempercepat penyembuhan luka.",
-          "Menjaga kesehatan pencernaan.",
-          "Membantu menghentikan pendarahan ringan.",
-          "Menjaga daya tahan tubuh.",
-        },
+          "Membantu mengurangi peradangan",
+          "Membantu mempercepat penyembuhan luka",
+          "Menjaga kesehatan pencernaan",
+          "Membantu menghentikan pendarahan ringan",
+          "Menjaga daya tahan tubuh"
+        ]
+      },
+
       "lidah buaya": {
-        nama: "lidah buaya",
-        latin: " Aloe vera.  ",
-        deskripsi: " Lidah Buaya adalah tanaman herbal dengan daun tebal berwarna hijau yang mengandung gel bening di dalamnya. Tanaman ini mudah tumbuh di daerah tropis dan sering dimanfaatkan untuk menjaga kesehatan kulit, rambut, serta membantu menyembuhkan luka ringan.",
+        nama: "Lidah Buaya",
+        latin: "Aloe vera",
+        deskripsi: "Lidah Buaya adalah tanaman herbal dengan daun tebal berwarna hijau yang mengandung gel bening di dalamnya. Tanaman ini mudah tumbuh di daerah tropis dan sering dimanfaatkan untuk menjaga kesehatan kulit, rambut, serta membantu menyembuhkan luka ringan.",
         manfaat: [
-          "Melembapkan dan menyehatkan kulit.",
-          "Membantu menyembuhkan luka ringan.",
-          "Menjaga kesehatan rambut.",
-          "Membantu meredakan iritasi atau peradangan kulit.",
-          "Membantu menjaga kesehatan pencernaan.",
-          
-          },
+          "Melembapkan dan menyehatkan kulit",
+          "Membantu menyembuhkan luka ringan",
+          "Menjaga kesehatan rambut",
+          "Membantu meredakan iritasi atau peradangan kulit",
+          "Membantu menjaga kesehatan pencernaan"
+        ]
+      },
+
       "daun pepaya": {
-        nama: "daun pepaya",
-        latin: " Carica papaya L.  ",
-        deskripsi: " Daun Pepaya adalah daun dari tanaman pepaya yang berwarna hijau dengan bentuk menjari dan rasa pahit khas. Daun ini sering dimanfaatkan sebagai bahan makanan maupun obat tradisional karena dipercaya memiliki banyak manfaat bagi kesehatan tubuh.",
+        nama: "Daun Pepaya",
+        latin: "Carica papaya L.",
+        deskripsi: "Daun Pepaya adalah daun dari tanaman pepaya yang berwarna hijau dengan bentuk menjari dan rasa pahit khas. Daun ini sering dimanfaatkan sebagai bahan makanan maupun obat tradisional karena dipercaya memiliki banyak manfaat bagi kesehatan tubuh.",
         manfaat: [
-          "Membantu melancarkan pencernaan.",
-          "Meningkatkan nafsu makan.",
-          "Membantu menjaga daya tahan tubuh.",
-          "Membantu meredakan demam.",
-          "Mengandung antioksidan yang baik bagi kesehatan.",
-          namadaun: {
-            //   nama: "...",
-            //   latin: "...",
-            //   deskripsi: "...",
-            //   manfaat: ["...", "...", ...]
-            // }
-          };
+          "Membantu melancarkan pencernaan",
+          "Meningkatkan nafsu makan",
+          "Membantu menjaga daya tahan tubuh",
+          "Membantu meredakan demam",
+          "Mengandung antioksidan yang baik bagi kesehatan"
+        ]
+      }
 
+    };
 
+    // =====================================================
+    // Variabel global - tidak perlu diubah
+    // =====================================================
+    var model = null;
+    var stream = null;
+    var currentFacingMode = "environment"; // "environment" = belakang, "user" = depan
 
-        // =====================================================
-        // Variabel global - tidak perlu diubah
-        // =====================================================
-        var model = null;
-        var stream = null;
-        var currentFacingMode = "environment"; // "environment" = belakang, "user" = depan
-
-        // Fungsi tampilkan status
-        function setStatus(pesan) {
-          document.getElementById("statusMsg").innerText = pesan;
+    // Fungsi tampilkan status
+    function setStatus(pesan) {
+      document.getElementById("statusMsg").innerText = pesan;
     }
 
     // Load model saat halaman dibuka
@@ -847,28 +854,44 @@
       }
     }
 
-    // Buka kamera
+    // Buka kamera (tombol utama)
     async function startCamera() {
       if (!model) { setStatus("Model belum siap, tunggu sebentar."); return; }
       currentFacingMode = "environment"; // Mulai dengan kamera belakang
       await openCamera();
     }
 
-    // Fungsi internal buka kamera dengan facingMode tertentu
+    // Fungsi internal: buka kamera dengan facingMode tertentu
     async function openCamera() {
       try {
         // Hentikan stream lama kalau ada
         hentikanKamera();
 
-        var constraints = {
-          video: {
-            facingMode: { ideal: currentFacingMode },
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
+        var constraints;
+        try {
+          constraints = {
+            video: {
+              facingMode: { ideal: currentFacingMode },
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            }
+          };
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (err) {
+          try {
+            console.warn("Gagal membuka kamera dengan resolusi ideal, mencoba alternatif...", err);
+            constraints = {
+              video: {
+                facingMode: currentFacingMode
+              }
+            };
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+          } catch (err2) {
+            console.warn("Gagal membuka kamera dengan facingMode, mencoba fallback standard...", err2);
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
           }
-        };
+        }
 
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
         var video = document.getElementById("video");
         video.srcObject = stream;
         video.style.display = "block";
@@ -883,6 +906,7 @@
 
         document.getElementById("previewImg").style.display = "none";
         document.getElementById("hasil").style.display = "none";
+        document.getElementById("notFound").style.display = "none";
         setStatus("Arahkan kamera ke daun lalu klik Ambil Foto.");
       } catch (e) {
         setStatus("Tidak bisa akses kamera. Pastikan izin kamera sudah diberikan.");
@@ -899,7 +923,7 @@
 
       await openCamera();
 
-      setTimeout(function() {
+      setTimeout(function () {
         btn.classList.remove("flipping");
         btn.disabled = false;
       }, 400);
@@ -948,6 +972,7 @@
         img.src = ev.target.result;
         img.style.display = "block";
         document.getElementById("hasil").style.display = "none";
+        document.getElementById("notFound").style.display = "none";
 
         // Proses gambar setelah selesai load
         var tempImg = new Image();
@@ -984,6 +1009,30 @@
       var key = teratas.className.toLowerCase().trim();
       var info = infoTanaman[key];
       var persen = Math.round(teratas.probability * 100);
+
+      // ===================================================
+      // ATURAN: Hanya tampilkan profil jika keyakinan >= 70%
+      // ===================================================
+      if (persen < 70) {
+        // Sembunyikan kartu hasil
+        document.getElementById("hasil").style.display = "none";
+
+        // Tampilkan kartu tidak ditemukan
+        var notFound = document.getElementById("notFound");
+        notFound.innerHTML =
+          "<div class='not-found-icon'>🔍</div>" +
+          "<div class='not-found-title'>Data Tidak Ditemukan</div>" +
+          "<div class='not-found-desc'>Gambar tidak dapat dikenali sebagai daun herbal yang terdaftar. Pastikan gambar jelas dan menampilkan daun dengan baik.</div>" +
+          "<div class='confidence-info'>Tingkat keyakinan: " + persen + "% (min. 70%)</div>" +
+          "<button class='btn-secondary' onclick='resetSemua()'>🔄 Coba Gambar Lain</button>";
+        notFound.style.display = "block";
+
+        setStatus("");
+        return;
+      }
+
+      // Sembunyikan kartu tidak ditemukan jika ada
+      document.getElementById("notFound").style.display = "none";
 
       // Jika class tidak ada di infoTanaman, tampilkan data minimal
       if (!info) {
@@ -1046,6 +1095,7 @@
       document.getElementById("cameraLabel").style.display = "none";
       document.getElementById("previewImg").style.display = "none";
       document.getElementById("hasil").style.display = "none";
+      document.getElementById("notFound").style.display = "none";
       setStatus("Model siap. Silakan buka kamera atau upload gambar.");
     }
 
