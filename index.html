@@ -4,8 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Aplikasi Pintar berbasis Kecerdasan Buatan (AI) untuk mendeteksi berbagai jenis daun herbal dan khasiat kesehatannya secara langsung dari browser.">
-  
+  <meta name="description"
+    content="Aplikasi Pintar berbasis Kecerdasan Buatan (AI) untuk mendeteksi berbagai jenis daun herbal dan khasiat kesehatannya secara langsung dari browser.">
+
   <title>Alat Deteksi Daun Herbal - Klasifikasi AI</title>
 
   <!-- Google Fonts: Inter untuk tampilan modern & bersih -->
@@ -22,12 +23,17 @@
        1. VARIABLES & RESET STYLE
        ========================================================================== */
     :root {
-      --primary: #10b981;          /* Hijau Emerald */
-      --primary-hover: #059669;    /* Hijau Emerald Gelap */
-      --secondary: #0f766e;        /* Hijau Teal */
+      --primary: #10b981;
+      /* Hijau Emerald */
+      --primary-hover: #059669;
+      /* Hijau Emerald Gelap */
+      --secondary: #0f766e;
+      /* Hijau Teal */
       --background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-      --text-main: #1f2937;        /* Abu-abu Gelap */
-      --text-muted: #4b5563;       /* Abu-abu Sedang */
+      --text-main: #1f2937;
+      /* Abu-abu Gelap */
+      --text-muted: #4b5563;
+      /* Abu-abu Sedang */
       --card-bg: #ffffff;
       --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
       --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -51,7 +57,8 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 90px 20px 40px 20px; /* Padding atas disesuaikan untuk Fixed Header */
+      padding: 90px 20px 40px 20px;
+      /* Padding atas disesuaikan untuk Fixed Header */
       line-height: 1.6;
     }
 
@@ -69,7 +76,8 @@
       left: 0;
       z-index: 1000;
       display: flex;
-      justify-content: center; /* Dipusatkan agar seimbang di mobile & desktop */
+      justify-content: center;
+      /* Dipusatkan agar seimbang di mobile & desktop */
       align-items: center;
     }
 
@@ -148,7 +156,8 @@
     }
 
     /* Dasar tombol */
-    button, .btn-label {
+    button,
+    .btn-label {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -175,6 +184,7 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
     }
+
     .btn-primary:active {
       transform: translateY(0);
     }
@@ -212,7 +222,8 @@
     /* ==========================================================================
        4. CAMERA STREAM & PREVIEW IMAGE
        ========================================================================== */
-    video, img {
+    video,
+    img {
       width: 100%;
       max-width: 100%;
       height: auto;
@@ -246,6 +257,81 @@
       transform: translateY(-2px);
     }
 
+    /* Container tombol kamera */
+    .camera-controls {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .camera-controls.active {
+      display: flex;
+    }
+
+    /* Tombol Ambil Foto (didalam camera-controls) */
+    .camera-controls #btnCapture {
+      margin: 0;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    /* Tombol Switch Kamera */
+    #btnSwitchCamera {
+      background-color: #f8fafc;
+      color: var(--secondary);
+      border: 2px solid var(--primary);
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-shrink: 0;
+      width: auto;
+      white-space: nowrap;
+      box-shadow: none;
+    }
+
+    #btnSwitchCamera:hover {
+      background-color: rgba(16, 185, 129, 0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);
+    }
+
+    #btnSwitchCamera:active {
+      transform: scale(0.95);
+    }
+
+    /* Animasi ikon flip */
+    #switchIcon {
+      display: inline-block;
+      font-size: 16px;
+      transition: transform 0.4s ease;
+    }
+
+    #btnSwitchCamera.flipping #switchIcon {
+      transform: rotate(180deg);
+    }
+
+    /* Label kamera aktif */
+    .camera-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: center;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-top: -8px;
+      margin-bottom: 8px;
+    }
+
     /* ==========================================================================
        5. STATUS & ALERTS
        ========================================================================== */
@@ -263,9 +349,17 @@
     }
 
     @keyframes pulse {
-      0% { opacity: 0.8; }
-      50% { opacity: 1; }
-      100% { opacity: 0.8; }
+      0% {
+        opacity: 0.8;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0.8;
+      }
     }
 
     /* ==========================================================================
@@ -283,8 +377,15 @@
     }
 
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .result-header {
@@ -420,7 +521,8 @@
        ========================================================================== */
     @media (max-width: 480px) {
       body {
-        padding: 75px 12px 20px 12px; /* Menyesuaikan dengan fixed header di layar kecil */
+        padding: 75px 12px 20px 12px;
+        /* Menyesuaikan dengan fixed header di layar kecil */
       }
 
       .app-header {
@@ -461,7 +563,8 @@
   <!-- Header Menu dengan Logo MTsN 3 Jakarta (Kemenag) -->
   <header class="app-header">
     <div class="header-logo-container">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5uffniyRneLa2hcxmzja9AJFE3Ta9_V9lNg&s" alt="Logo MTsN 3 Jakarta" class="school-logo">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5uffniyRneLa2hcxmzja9AJFE3Ta9_V9lNg&s"
+        alt="Logo MTsN 3 Jakarta" class="school-logo">
       <div class="school-info">
         <span class="school-name">MTsN 3 Jakarta</span>
         <span class="school-tagline">Unggul, Mandiri, Religius</span>
@@ -476,7 +579,7 @@
     <!-- Pilihan Input -->
     <div class="btn-container">
       <button class="btn-primary" onclick="startCamera()">📷 Buka Kamera HP / Laptop</button>
-      
+
       <!-- Tombol Unggah File Kustom -->
       <label class="btn-label" for="fileUpload">
         📁 Unggah Foto Gambar Daun
@@ -486,7 +589,17 @@
 
     <!-- Tampilan Kamera Live -->
     <video id="video" autoplay playsinline style="display:none"></video>
-    <button id="btnCapture" class="btn-primary" onclick="captureFrame()" style="display:none">📸 Ambil Foto Daun</button>
+
+    <!-- Label kamera aktif -->
+    <div id="cameraLabel" class="camera-label" style="display:none"></div>
+
+    <!-- Kontrol Kamera: Ambil Foto + Switch Kamera -->
+    <div class="camera-controls" id="cameraControls">
+      <button id="btnCapture" class="btn-primary" onclick="captureFrame()">📸 Ambil Foto Daun</button>
+      <button id="btnSwitchCamera" onclick="switchCamera()" title="Ganti kamera">
+        <span id="switchIcon">🔄</span> Balik Kamera
+      </button>
+    </div>
 
     <!-- Preview Foto yang Dipilih/Difoto -->
     <img id="previewImg" style="display:none">
@@ -654,7 +767,7 @@
           "Meningkatkan daya tahan tubuh.",
           "Menjaga kesehatan kulit.",
           "Menjaga kesehatan Pencernaan.",
-        ]  
+        ]
       },
       "sirih merah": {
         nama: "sirih merah",
@@ -666,8 +779,8 @@
           "Membantu mempercepat penyembuhan luka.",
           "Menjaga kesehatan kulit dan mulut.",
           "Menjaga kesehatan Pencernaan.",
-        ] 
-      // ]  
+        ]
+        // ]  
       },
       "daun andong": {
         nama: "daun andong",
@@ -703,24 +816,25 @@
           "Membantu meredakan demam.",
           "Mengandung antioksidan yang baik bagi kesehatan.",
           namadaun: {
-      //   nama: "...",
-      //   latin: "...",
-      //   deskripsi: "...",
-      //   manfaat: ["...", "...", ...]
-      // }
-    };
+            //   nama: "...",
+            //   latin: "...",
+            //   deskripsi: "...",
+            //   manfaat: ["...", "...", ...]
+            // }
+          };
 
 
 
-    // =====================================================
-    // Variabel global - tidak perlu diubah
-    // =====================================================
-    var model = null;
-    var stream = null;
+        // =====================================================
+        // Variabel global - tidak perlu diubah
+        // =====================================================
+        var model = null;
+        var stream = null;
+        var currentFacingMode = "environment"; // "environment" = belakang, "user" = depan
 
-    // Fungsi tampilkan status
-    function setStatus(pesan) {
-      document.getElementById("statusMsg").innerText = pesan;
+        // Fungsi tampilkan status
+        function setStatus(pesan) {
+          document.getElementById("statusMsg").innerText = pesan;
     }
 
     // Load model saat halaman dibuka
@@ -736,11 +850,37 @@
     // Buka kamera
     async function startCamera() {
       if (!model) { setStatus("Model belum siap, tunggu sebentar."); return; }
+      currentFacingMode = "environment"; // Mulai dengan kamera belakang
+      await openCamera();
+    }
+
+    // Fungsi internal buka kamera dengan facingMode tertentu
+    async function openCamera() {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        document.getElementById("video").srcObject = stream;
-        document.getElementById("video").style.display = "block";
-        document.getElementById("btnCapture").style.display = "inline";
+        // Hentikan stream lama kalau ada
+        hentikanKamera();
+
+        var constraints = {
+          video: {
+            facingMode: { ideal: currentFacingMode },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        };
+
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        var video = document.getElementById("video");
+        video.srcObject = stream;
+        video.style.display = "block";
+
+        // Tampilkan kontrol kamera
+        document.getElementById("cameraControls").classList.add("active");
+
+        // Tampilkan label kamera aktif
+        var labelEl = document.getElementById("cameraLabel");
+        labelEl.style.display = "block";
+        labelEl.innerText = currentFacingMode === "user" ? "📱 Kamera Depan" : "📷 Kamera Belakang";
+
         document.getElementById("previewImg").style.display = "none";
         document.getElementById("hasil").style.display = "none";
         setStatus("Arahkan kamera ke daun lalu klik Ambil Foto.");
@@ -749,22 +889,49 @@
       }
     }
 
+    // Ganti kamera depan <-> belakang
+    async function switchCamera() {
+      var btn = document.getElementById("btnSwitchCamera");
+      btn.classList.add("flipping");
+      btn.disabled = true;
+
+      currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
+
+      await openCamera();
+
+      setTimeout(function() {
+        btn.classList.remove("flipping");
+        btn.disabled = false;
+      }, 400);
+    }
+
     // Ambil foto dari kamera
     async function captureFrame() {
       var video = document.getElementById("video");
       var canvas = document.getElementById("canvas");
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      canvas.getContext("2d").drawImage(video, 0, 0);
+
+      var ctx = canvas.getContext("2d");
+      // Mirror gambar jika pakai kamera depan agar tidak terbalik
+      if (currentFacingMode === "user") {
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, -canvas.width, 0);
+        ctx.restore();
+      } else {
+        ctx.drawImage(video, 0, 0);
+      }
 
       // Tampilkan hasil foto sebagai preview
       document.getElementById("previewImg").src = canvas.toDataURL("image/jpeg");
       document.getElementById("previewImg").style.display = "block";
 
-      // Hentikan kamera
+      // Hentikan kamera & sembunyikan kontrol
       hentikanKamera();
       document.getElementById("video").style.display = "none";
-      document.getElementById("btnCapture").style.display = "none";
+      document.getElementById("cameraControls").classList.remove("active");
+      document.getElementById("cameraLabel").style.display = "none";
 
       await prediksi(canvas);
     }
@@ -875,7 +1042,8 @@
     function resetSemua() {
       hentikanKamera();
       document.getElementById("video").style.display = "none";
-      document.getElementById("btnCapture").style.display = "none";
+      document.getElementById("cameraControls").classList.remove("active");
+      document.getElementById("cameraLabel").style.display = "none";
       document.getElementById("previewImg").style.display = "none";
       document.getElementById("hasil").style.display = "none";
       setStatus("Model siap. Silakan buka kamera atau upload gambar.");
