@@ -1,1 +1,1059 @@
+<!DOCTYPE html>
+<html lang="id">
 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Aplikasi Pintar berbasis Kecerdasan Buatan (AI) untuk mendeteksi berbagai jenis daun herbal dan khasiat kesehatannya secara langsung dari browser.">
+
+  <title>Alat Deteksi Daun Herbal - Klasifikasi AI</title>
+
+  <!-- Google Fonts: Inter untuk tampilan modern & bersih -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Library TensorFlow dan Teachable Machine dari internet -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.5/dist/teachablemachine-image.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       1. VARIABLES & RESET STYLE
+       ========================================================================== */
+    :root {
+      --primary: #10b981;
+      /* Hijau Emerald */
+      --primary-hover: #059669;
+      /* Hijau Emerald Gelap */
+      --secondary: #0f766e;
+      /* Hijau Teal */
+      --background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+      --text-main: #1f2937;
+      /* Abu-abu Gelap */
+      --text-muted: #4b5563;
+      /* Abu-abu Sedang */
+      --card-bg: #ffffff;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --radius-lg: 20px;
+      --radius-md: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 90px 20px 40px 20px;
+      /* Padding atas disesuaikan untuk Fixed Header */
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       HEADER MENU & SCHOOL LOGO
+       ========================================================================== */
+    .app-header {
+      width: 100%;
+      background-color: var(--card-bg);
+      box-shadow: var(--shadow-sm);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+      padding: 12px 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      /* Dipusatkan agar seimbang di mobile & desktop */
+      align-items: center;
+    }
+
+    .header-logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .school-logo {
+      height: 38px;
+      width: auto;
+      border: none !important;
+      box-shadow: none !important;
+      margin: 0 !important;
+      background: transparent !important;
+    }
+
+    .school-info {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .school-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--secondary);
+      line-height: 1.2;
+    }
+
+    .school-tagline {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* ==========================================================================
+       2. LAYOUT CONTAINER (CARD)
+       ========================================================================== */
+    .app-card {
+      background-color: var(--card-bg);
+      width: 100%;
+      max-width: 520px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 32px 24px;
+      text-align: center;
+      border: 1px solid rgba(16, 185, 129, 0.12);
+      transition: transform 0.3s ease;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--secondary);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .app-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+      font-weight: 400;
+    }
+
+    /* ==========================================================================
+       3. INTERACTIVE BUTTONS & INPUTS
+       ========================================================================== */
+    .btn-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    /* Dasar tombol */
+    button,
+    .btn-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 100%;
+      font-family: inherit;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Tombol Utama (Hijau) */
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* Tombol Sekunder (Outline) */
+    .btn-secondary {
+      background-color: transparent;
+      border: 2px solid var(--primary);
+      color: var(--secondary);
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(16, 185, 129, 0.06);
+      transform: translateY(-2px);
+    }
+
+    /* Tombol Unggah Gambar (Kustom) */
+    .btn-label {
+      background-color: #f3f4f6;
+      color: var(--text-main);
+      border: 1px solid #e5e7eb;
+    }
+
+    .btn-label:hover {
+      background-color: #e5e7eb;
+      transform: translateY(-2px);
+    }
+
+    /* Menyembunyikan input file asli bawaan browser */
+    input[type="file"] {
+      display: none;
+    }
+
+    /* ==========================================================================
+       4. CAMERA STREAM & PREVIEW IMAGE
+       ========================================================================== */
+    video,
+    img {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--radius-md);
+      margin: 16px auto;
+      display: block;
+      border: 3px solid #e6f4ea;
+      box-shadow: var(--shadow-md);
+      object-fit: cover;
+    }
+
+    video {
+      background-color: #111827;
+      aspect-ratio: 4 / 3;
+    }
+
+    /* Tombol Ambil Foto */
+    #btnCapture {
+      background-color: #ef4444;
+      color: white;
+      margin-top: -8px;
+      margin-bottom: 16px;
+      max-width: 220px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+    }
+
+    #btnCapture:hover {
+      background-color: #dc2626;
+      transform: translateY(-2px);
+    }
+
+    /* Container tombol kamera */
+    .camera-controls {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .camera-controls.active {
+      display: flex;
+    }
+
+    /* Tombol Ambil Foto (didalam camera-controls) */
+    .camera-controls #btnCapture {
+      margin: 0;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    /* Tombol Switch Kamera */
+    #btnSwitchCamera {
+      background-color: #f8fafc;
+      color: var(--secondary);
+      border: 2px solid var(--primary);
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-shrink: 0;
+      width: auto;
+      white-space: nowrap;
+      box-shadow: none;
+    }
+
+    #btnSwitchCamera:hover {
+      background-color: rgba(16, 185, 129, 0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);
+    }
+
+    #btnSwitchCamera:active {
+      transform: scale(0.95);
+    }
+
+    /* Animasi ikon flip */
+    #switchIcon {
+      display: inline-block;
+      font-size: 16px;
+      transition: transform 0.4s ease;
+    }
+
+    #btnSwitchCamera.flipping #switchIcon {
+      transform: rotate(180deg);
+    }
+
+    /* Label kamera aktif */
+    .camera-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: center;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-top: -8px;
+      margin-bottom: 8px;
+    }
+
+    /* ==========================================================================
+       5. STATUS & ALERTS
+       ========================================================================== */
+    #statusMsg {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--secondary);
+      margin: 16px 0;
+      padding: 10px 16px;
+      background-color: rgba(16, 185, 129, 0.08);
+      border-radius: var(--radius-md);
+      display: inline-block;
+      border: 1px solid rgba(16, 185, 129, 0.15);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 0.8;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0.8;
+      }
+    }
+
+    /* ==========================================================================
+       6. RESULT CARD & DETAIL
+       ========================================================================== */
+    .result-card {
+      text-align: left;
+      background-color: #fafdfb;
+      border: 1px solid #e6f4ea;
+      border-radius: var(--radius-md);
+      padding: 24px 20px;
+      margin-top: 24px;
+      box-shadow: var(--shadow-sm);
+      animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result-header {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--secondary);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e6f4ea;
+      text-align: center;
+    }
+
+    .info-item {
+      margin-bottom: 10px;
+      font-size: 15px;
+      display: flex;
+      align-items: baseline;
+    }
+
+    .info-item b {
+      color: var(--text-muted);
+      font-weight: 500;
+      width: 140px;
+      flex-shrink: 0;
+    }
+
+    .info-item span {
+      font-weight: 600;
+    }
+
+    .latin-text {
+      font-style: italic;
+      color: var(--secondary);
+      font-weight: 500 !important;
+    }
+
+    .accuracy-badge {
+      background-color: rgba(16, 185, 129, 0.12);
+      color: var(--primary-hover);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .divider {
+      height: 1px;
+      background-color: #e5e7eb;
+      border: none;
+      margin: 20px 0;
+    }
+
+    .detail-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .desc-text {
+      font-size: 14px;
+      color: var(--text-muted);
+      text-align: justify;
+      margin-bottom: 16px;
+    }
+
+    /* Daftar Manfaat */
+    .benefits-list {
+      list-style-type: none;
+      padding-left: 0;
+      margin-bottom: 8px;
+    }
+
+    .benefits-list li {
+      position: relative;
+      padding-left: 24px;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .benefits-list li::before {
+      content: "✔";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    /* ==========================================================================
+       7. PROBABILITY BARS (Dynamic Output)
+       ========================================================================== */
+    #probBars p {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-top: 12px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #probBars progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 10px;
+      border: none;
+      background-color: #f3f4f6;
+      display: block;
+    }
+
+    #probBars progress::-webkit-progress-bar {
+      background-color: #f3f4f6;
+      border-radius: 10px;
+    }
+
+    #probBars progress::-webkit-progress-value {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+
+    #probBars progress::-moz-progress-bar {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+
+    /* ==========================================================================
+       8. RESPONSIVE MEDIA QUERIES (Mobile)
+       ========================================================================== */
+    @media (max-width: 480px) {
+      body {
+        padding: 75px 12px 20px 12px;
+        /* Menyesuaikan dengan fixed header di layar kecil */
+      }
+
+      .app-header {
+        padding: 8px 16px;
+      }
+
+      .school-logo {
+        height: 32px;
+      }
+
+      .school-name {
+        font-size: 13px;
+      }
+
+      .app-card {
+        padding: 24px 16px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .info-item {
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 12px;
+      }
+
+      .info-item b {
+        width: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header Menu dengan Logo MTsN 3 Jakarta (Kemenag) -->
+  <header class="app-header">
+    <div class="header-logo-container">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5uffniyRneLa2hcxmzja9AJFE3Ta9_V9lNg&s"
+        alt="Logo MTsN 3 Jakarta" class="school-logo">
+      <div class="school-info">
+        <span class="school-name">MTsN 3 Jakarta</span>
+        <span class="school-tagline">Unggul, Mandiri, Religius</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-card">
+    <h1>Alat Deteksi Daun Herbal</h1>
+    <div class="app-subtitle">Deteksi Jenis dan Khasiat Daun Obat Sekitar Kita Menggunakan AI</div>
+
+    <!-- Pilihan Input -->
+    <div class="btn-container">
+      <button class="btn-primary" onclick="startCamera()">📷 Buka Kamera HP / Laptop</button>
+
+      <!-- Tombol Unggah File Kustom -->
+      <label class="btn-label" for="fileUpload">
+        📁 Unggah Foto Gambar Daun
+      </label>
+      <input type="file" id="fileUpload" accept="image/*" onchange="handleUpload(event)">
+    </div>
+
+    <!-- Tampilan Kamera Live -->
+    <video id="video" autoplay playsinline style="display:none"></video>
+
+    <!-- Label kamera aktif -->
+    <div id="cameraLabel" class="camera-label" style="display:none"></div>
+
+    <!-- Kontrol Kamera: Ambil Foto + Switch Kamera -->
+    <div class="camera-controls" id="cameraControls">
+      <button id="btnCapture" class="btn-primary" onclick="captureFrame()">📸 Ambil Foto Daun</button>
+      <button id="btnSwitchCamera" onclick="switchCamera()" title="Ganti kamera">
+        <span id="switchIcon">🔄</span> Balik Kamera
+      </button>
+    </div>
+
+    <!-- Preview Foto yang Dipilih/Difoto -->
+    <img id="previewImg" style="display:none">
+
+    <!-- Canvas tersembunyi untuk proses citra -->
+    <canvas id="canvas" style="display:none"></canvas>
+
+    <!-- Status Loading / Informasi -->
+    <div id="statusMsg">Memuat model AI, harap tunggu...</div>
+
+    <!-- Hasil Klasifikasi & Deskripsi -->
+    <div id="hasil" class="result-card" style="display:none">
+      <div class="result-header">Hasil Analisis Tanaman</div>
+
+      <div class="info-item">
+        <b>Nama Daun:</b> <span id="leafName">-</span>
+      </div>
+      <div class="info-item">
+        <b>Nama Ilmiah (Latin):</b> <span id="leafLatin" class="latin-text">-</span>
+      </div>
+      <div class="info-item">
+        <b>Tingkat Keyakinan AI:</b> <span><span id="leafConf" class="accuracy-badge">0</span>%</span>
+      </div>
+
+      <hr class="divider">
+
+      <div class="detail-title">Tentang Tanaman</div>
+      <p id="leafDesc" class="desc-text">-</p>
+
+      <div class="detail-title">Khasiat & Manfaat Utama</div>
+      <ul id="leafBenefits" class="benefits-list"></ul>
+
+      <hr class="divider">
+
+      <div class="detail-title">Tingkat Kemiripan Semua Kelas</div>
+      <div id="probBars"></div>
+
+      <button class="btn-secondary" style="margin-top: 24px;" onclick="resetSemua()">🔄 Deteksi Gambar Lain</button>
+    </div>
+  </div>
+
+  <script>
+
+    // =====================================================
+    // LANGKAH 1: Ganti URL ini dengan URL model kamu
+    // Cara dapat URL:
+    //   - Buka teachablemachine.withgoogle.com
+    //   - Buka project -> Export Model
+    //   - Pilih Tensorflow.js -> Upload (shareable link)
+    //   - Klik "Upload my model" -> copy URL-nya
+    // =====================================================
+    var MODEL_URL = "https://teachablemachine.withgoogle.com/models/7eoaYwVKW/";
+
+
+
+    // =====================================================
+    // LANGKAH 2: Isi informasi untuk setiap class
+    // Key (binahong, sereh) harus sama dengan nama class
+    // di Teachable Machine (huruf kecil)
+    // =====================================================
+    var infoTanaman = {
+
+
+      "daun afrika": {
+        nama: "Daun Afrika",
+        latin: "Vernonia amygdalina",
+        deskripsi: "Daun afrika adalah tanaman herbal merambat yang berasal dari Afrika Selatan. Daunnya berbentuk hati dengan permukaan mengkilap. Banyak digunakan dalam pengobatan tradisional Indonesia.",
+        manfaat: [
+          "Mempercepat penyembuhan luka",
+          "Mengandung antioksidan tinggi",
+          "Bersifat anti-inflamasi",
+          "Meningkatkan daya tahan tubuh",
+          "Melancarkan pencernaan"
+        ]
+      },
+
+
+      "sawi langit": {
+        nama: "Sawi Langit",
+        latin: "Crassocephalum cressiodes",
+        deskripsi: "Sawi langit adalah tanaman herba yang memiliki banyak manfaat bagi kesehatan. Daunnya berbentuk oval dengan pinggiran bergerigi dan warna hijau cerah. Tanaman ini tumbuh liar di daerah tropis dan subtropis.",
+        manfaat: [
+          "Antiinflamasi",
+          "Antioksidan",
+          "Antitoksik",
+          "Antimikroba"
+        ]
+      },
+
+
+      "gempur batu": {
+        nama: "Gempur Batu",
+        latin: " Strobilanthes crispus ",
+        deskripsi: "Gempur batu adalah tanaman herba yang memiliki banyak manfaat bagi kesehatan. Daunnya berbentuk oval dengan pinggiran bergerigi dan warna hijau cerah. Tanaman ini tumbuh liar di daerah tropis dan subtropis.",
+        manfaat: [
+          "Antiinflamasi",
+          "Antioksidan",
+          "Antihepatotoksik",
+          "Antihipertensi",
+          "Antihiperglikemik"
+        ]
+      },
+
+      "kirinyuh": {
+        nama: "kirinyuh",
+        latin: " Ageratina adenophora ",
+        deskripsi: "Kirinyuh adalah tumbuhan semak liar berbunga putih dari keluarga Asteraceae yang banyak tumbuh di daerah tropis dan memiliki manfaat tradisional sebagai obat luka, antibakteri, serta bahan pestisida nabati.",
+        manfaat: [
+          "Membantu penyembuhan luka",
+          "Antibakteri dan antijamur",
+          "Antioksidan",
+          "Pestisida nabati",
+          "Bahan kompos dan pupuk hijau"
+        ]
+      },
+
+      "menira merah": {
+        nama: "menira merah",
+        latin: " Phyllanthus urinaria ",
+        deskripsi: "Meniran Merah adalah tanaman herbal kecil dengan batang kemerahan dan buah kecil di bawah daun yang dikenal memiliki manfaat tradisional untuk membantu meningkatkan daya tahan tubuh, meredakan peradangan, dan mendukung kesehatan hati..",
+        manfaat: [
+          "Membantu meningkatkan daya tahan tubuh",
+          "Membantu menjaga kesehatan hati",
+          "Memiliki sifat antiinflamasi dan antioksidan",
+          "Digunakan secara tradisional untuk membantu meredakan infeksi saluran kemih",
+          "Membantu menurunkan demam dan menjaga kesehatan tubuh secara alami"
+        ]
+      },
+
+
+      "ruku ruku": {
+        nama: "ruku ruku",
+        latin: " Ocimum tenuiflorum ",
+        deskripsi: "  Ruku ruku adalah tanaman herbal aromatik dari keluarga Lamiaceae yang memiliki daun kecil berwarna hijau keunguan dengan aroma khas, sering digunakan sebagai bumbu masakan serta tanaman obat tradisional di berbagai daerah tropis....",
+        manfaat: [
+          "Membantu meredakan batuk dan flu",
+          "Memiliki sifat antibakteri dan antivirus alami",
+          "Membantu meningkatkan daya tahan tubuh",
+          "Dapat meredakan stres dan membuat tubuh lebih rileks",
+          "Membantu menjaga kesehatan saluran pernapasan"
+        ]
+      },
+
+
+      "sirih cina": {
+        nama: "Sirih Cina",
+        latin: " Peperomia pellucida ",
+        deskripsi: " sirih cina adalah herba kecil dengan batang lunak, daun hijau mengkilap berbentuk hati, dan biasanya tumbuh liar di tempat lembap seperti pekarangan atau tepi jalan.",
+        manfaat: [
+          "Membantu meredakan nyeri dan peradangan.",
+          "Memiliki sifat antibakteri dan antioksidan.",
+          "Digunakan secara tradisional untuk membantu mengatasi asam urat.",
+          "Membantu mempercepat penyembuhan luka ringan",
+          "Dapat digunakan sebagai obat herbal untuk kesehatan ginjal dan saluran kemih."
+        ]
+      },
+
+      "daun binahong": {
+        nama: "daun binahong",
+        latin: " Anredera cordifolia (Ten.) Steenis.  ",
+        deskripsi: " Daun Binahong adalah tanaman herbal merambat yang memiliki daun hijau berbentuk hati dan mudah tumbuh di daerah tropis. Daun ini sering digunakan dalam pengobatan tradisional karena dipercaya dapat membantu menyembuhkan luka, mengurangi peradangan, dan menjaga kesehatan tubuh.",
+        manfaat: [
+          "Membantu mempercepat penyembuhan luka.",
+          "Mengurangi peradangan.",
+          "Meningkatkan daya tahan tubuh.",
+          "Menjaga kesehatan kulit.",
+          "Menjaga kesehatan Pencernaan.",
+        ]
+      },
+      "sirih merah": {
+        nama: "sirih merah",
+        latin: " Piper crocatum Ruiz & Pav.  ",
+        deskripsi: " Daun Sirih Merah adalah tanaman merambat yang memiliki daun berwarna hijau kemerahan dengan permukaan mengilap dan mudah tumbuh di daerah tropis.",
+        manfaat: [
+          "Membantu menjaga daya tahan tubuh.",
+          "Memiliki sifat antibakteri dan antiradang.",
+          "Membantu mempercepat penyembuhan luka.",
+          "Menjaga kesehatan kulit dan mulut.",
+          "Menjaga kesehatan Pencernaan.",
+        ]
+        // ]  
+      },
+      "daun andong": {
+        nama: "daun andong",
+        latin: " Cordyline fruticosa.  ",
+        deskripsi: " Daun Andong adalah tanaman hias yang memiliki daun panjang berwarna merah keunguan atau hijau. Tanaman ini mudah tumbuh di daerah tropis dan sering dimanfaatkan sebagai tanaman obat tradisional karena dipercaya membantu mengurangi peradangan dan menjaga kesehatan tubuh.",
+        manfaat: [
+          "Membantu mengurangi peradangan.",
+          "Membantu mempercepat penyembuhan luka.",
+          "Menjaga kesehatan pencernaan.",
+          "Membantu menghentikan pendarahan ringan.",
+          "Menjaga daya tahan tubuh.",
+        },
+      "lidah buaya": {
+        nama: "lidah buaya",
+        latin: " Aloe vera.  ",
+        deskripsi: " Lidah Buaya adalah tanaman herbal dengan daun tebal berwarna hijau yang mengandung gel bening di dalamnya. Tanaman ini mudah tumbuh di daerah tropis dan sering dimanfaatkan untuk menjaga kesehatan kulit, rambut, serta membantu menyembuhkan luka ringan.",
+        manfaat: [
+          "Melembapkan dan menyehatkan kulit.",
+          "Membantu menyembuhkan luka ringan.",
+          "Menjaga kesehatan rambut.",
+          "Membantu meredakan iritasi atau peradangan kulit.",
+          "Membantu menjaga kesehatan pencernaan.",
+          
+          },
+      "daun pepaya": {
+        nama: "daun pepaya",
+        latin: " Carica papaya L.  ",
+        deskripsi: " Daun Pepaya adalah daun dari tanaman pepaya yang berwarna hijau dengan bentuk menjari dan rasa pahit khas. Daun ini sering dimanfaatkan sebagai bahan makanan maupun obat tradisional karena dipercaya memiliki banyak manfaat bagi kesehatan tubuh.",
+        manfaat: [
+          "Membantu melancarkan pencernaan.",
+          "Meningkatkan nafsu makan.",
+          "Membantu menjaga daya tahan tubuh.",
+          "Membantu meredakan demam.",
+          "Mengandung antioksidan yang baik bagi kesehatan.",
+          namadaun: {
+            //   nama: "...",
+            //   latin: "...",
+            //   deskripsi: "...",
+            //   manfaat: ["...", "...", ...]
+            // }
+          };
+
+
+
+        // =====================================================
+        // Variabel global - tidak perlu diubah
+        // =====================================================
+        var model = null;
+        var stream = null;
+        var currentFacingMode = "environment"; // "environment" = belakang, "user" = depan
+
+        // Fungsi tampilkan status
+        function setStatus(pesan) {
+          document.getElementById("statusMsg").innerText = pesan;
+    }
+
+    // Load model saat halaman dibuka
+    async function loadModel() {
+      try {
+        model = await tmImage.load(MODEL_URL + "model.json", MODEL_URL + "metadata.json");
+        setStatus("Model siap. Silakan buka kamera atau upload gambar.");
+      } catch (e) {
+        setStatus("Gagal memuat model. Cek URL model dan koneksi internet.");
+      }
+    }
+
+    // Buka kamera
+    async function startCamera() {
+      if (!model) { setStatus("Model belum siap, tunggu sebentar."); return; }
+      currentFacingMode = "environment"; // Mulai dengan kamera belakang
+      await openCamera();
+    }
+
+    // Fungsi internal buka kamera dengan facingMode tertentu
+    async function openCamera() {
+      try {
+        // Hentikan stream lama kalau ada
+        hentikanKamera();
+
+        var constraints = {
+          video: {
+            facingMode: { ideal: currentFacingMode },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        };
+
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        var video = document.getElementById("video");
+        video.srcObject = stream;
+        video.style.display = "block";
+
+        // Tampilkan kontrol kamera
+        document.getElementById("cameraControls").classList.add("active");
+
+        // Tampilkan label kamera aktif
+        var labelEl = document.getElementById("cameraLabel");
+        labelEl.style.display = "block";
+        labelEl.innerText = currentFacingMode === "user" ? "📱 Kamera Depan" : "📷 Kamera Belakang";
+
+        document.getElementById("previewImg").style.display = "none";
+        document.getElementById("hasil").style.display = "none";
+        setStatus("Arahkan kamera ke daun lalu klik Ambil Foto.");
+      } catch (e) {
+        setStatus("Tidak bisa akses kamera. Pastikan izin kamera sudah diberikan.");
+      }
+    }
+
+    // Ganti kamera depan <-> belakang
+    async function switchCamera() {
+      var btn = document.getElementById("btnSwitchCamera");
+      btn.classList.add("flipping");
+      btn.disabled = true;
+
+      currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
+
+      await openCamera();
+
+      setTimeout(function() {
+        btn.classList.remove("flipping");
+        btn.disabled = false;
+      }, 400);
+    }
+
+    // Ambil foto dari kamera
+    async function captureFrame() {
+      var video = document.getElementById("video");
+      var canvas = document.getElementById("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      var ctx = canvas.getContext("2d");
+      // Mirror gambar jika pakai kamera depan agar tidak terbalik
+      if (currentFacingMode === "user") {
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, -canvas.width, 0);
+        ctx.restore();
+      } else {
+        ctx.drawImage(video, 0, 0);
+      }
+
+      // Tampilkan hasil foto sebagai preview
+      document.getElementById("previewImg").src = canvas.toDataURL("image/jpeg");
+      document.getElementById("previewImg").style.display = "block";
+
+      // Hentikan kamera & sembunyikan kontrol
+      hentikanKamera();
+      document.getElementById("video").style.display = "none";
+      document.getElementById("cameraControls").classList.remove("active");
+      document.getElementById("cameraLabel").style.display = "none";
+
+      await prediksi(canvas);
+    }
+
+    // Upload gambar dari file
+    function handleUpload(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      if (!model) { setStatus("Model belum siap, tunggu sebentar."); return; }
+
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        var img = document.getElementById("previewImg");
+        img.src = ev.target.result;
+        img.style.display = "block";
+        document.getElementById("hasil").style.display = "none";
+
+        // Proses gambar setelah selesai load
+        var tempImg = new Image();
+        tempImg.onload = async function () {
+          var canvas = document.getElementById("canvas");
+          canvas.width = tempImg.naturalWidth;
+          canvas.height = tempImg.naturalHeight;
+          canvas.getContext("2d").drawImage(tempImg, 0, 0);
+          await prediksi(canvas);
+        };
+        tempImg.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Proses prediksi ke model AI
+    async function prediksi(sumber) {
+      setStatus("Sedang menganalisis gambar...");
+      document.getElementById("hasil").style.display = "none";
+      try {
+        var hasil = await model.predict(sumber);
+        tampilHasil(hasil);
+      } catch (e) {
+        setStatus("Gagal menganalisis gambar. Coba lagi.");
+      }
+    }
+
+    // Tampilkan hasil prediksi
+    function tampilHasil(predictions) {
+      // Urutkan dari probabilitas tertinggi
+      predictions.sort(function (a, b) { return b.probability - a.probability; });
+
+      var teratas = predictions[0];
+      var key = teratas.className.toLowerCase().trim();
+      var info = infoTanaman[key];
+      var persen = Math.round(teratas.probability * 100);
+
+      // Jika class tidak ada di infoTanaman, tampilkan data minimal
+      if (!info) {
+        info = {
+          nama: teratas.className,
+          latin: "-",
+          deskripsi: "Informasi untuk tanaman ini belum tersedia.",
+          manfaat: []
+        };
+      }
+
+      // Isi nama, latin, keyakinan
+      document.getElementById("leafName").innerText = info.nama;
+      document.getElementById("leafLatin").innerText = info.latin;
+      document.getElementById("leafConf").innerText = persen;
+
+      // Isi deskripsi
+      document.getElementById("leafDesc").innerText = info.deskripsi;
+
+      // Isi daftar manfaat
+      var ulManfaat = document.getElementById("leafBenefits");
+      ulManfaat.innerHTML = "";
+      for (var i = 0; i < info.manfaat.length; i++) {
+        var li = document.createElement("li");
+        li.innerText = info.manfaat[i];
+        ulManfaat.appendChild(li);
+      }
+
+      // Isi bar probabilitas tiap class
+      var divBars = document.getElementById("probBars");
+      divBars.innerHTML = "";
+      for (var j = 0; j < predictions.length; j++) {
+        var p = predictions[j];
+        var pct = Math.round(p.probability * 100);
+        var inf = infoTanaman[p.className.toLowerCase().trim()];
+        var namaClass = inf ? inf.nama : p.className;
+
+        divBars.innerHTML +=
+          "<p>" + namaClass + ": " + pct + "%" +
+          "<br><progress value='" + pct + "' max='100'></progress></p>";
+      }
+
+      setStatus("");
+      document.getElementById("hasil").style.display = "block";
+    }
+
+    // Hentikan kamera
+    function hentikanKamera() {
+      if (stream) {
+        stream.getTracks().forEach(function (t) { t.stop(); });
+        stream = null;
+      }
+    }
+
+    // Reset semua
+    function resetSemua() {
+      hentikanKamera();
+      document.getElementById("video").style.display = "none";
+      document.getElementById("cameraControls").classList.remove("active");
+      document.getElementById("cameraLabel").style.display = "none";
+      document.getElementById("previewImg").style.display = "none";
+      document.getElementById("hasil").style.display = "none";
+      setStatus("Model siap. Silakan buka kamera atau upload gambar.");
+    }
+
+    // Jalankan load model saat halaman pertama dibuka
+    loadModel();
+
+  </script>
+
+</body>
+
+</html>
