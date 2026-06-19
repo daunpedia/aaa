@@ -682,7 +682,7 @@
 
       <hr class="divider">
 
-      <div class="detail-title">Tingkat Kemiripan Semua Kelas</div>
+      <div class="detail-title">3 Kemiripan Daun Teratas</div>
       <div id="probBars"></div>
 
       <button class="btn-secondary" style="margin-top: 24px;" onclick="resetSemua()">🔄 Deteksi Gambar Lain</button>
@@ -1087,10 +1087,11 @@
         ulManfaat.appendChild(li);
       }
 
-      // Isi bar probabilitas tiap class
+      // Isi bar probabilitas - hanya tampilkan 3 daun dengan kemiripan tertinggi
       var divBars = document.getElementById("probBars");
       divBars.innerHTML = "";
-      for (var j = 0; j < predictions.length; j++) {
+      var maxTampil = Math.min(3, predictions.length);
+      for (var j = 0; j < maxTampil; j++) {
         var p = predictions[j];
         var pct = Math.round(p.probability * 100);
         var inf = infoTanaman[p.className.toLowerCase().trim()];
@@ -1133,4 +1134,3 @@
 </body>
 
 </html>
-
